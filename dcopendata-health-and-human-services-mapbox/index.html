@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Description: This map has been adapted from DC.gov's Open Data Starter Kit sample demonstrating how to layout a list next to map, and add interaction between them. I have kept the bulk of the code the same but have changed it to link to a different dataset. I also moved the styles to their own separate css file. -->
+    <!-- Attribution:
+    Mapbox JS sample, Url: https://www.mapbox.com/mapbox.js/example/v1.0.0/ 
+    Styling inspired by Esri Story Map: https://storymaps.esri.com/stories/2016/top-stories/
+    -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Health &amp; HIV/AIDS Clinics @ Washington, DC</title>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet'>
+    <link href='css/style.css' rel="stylesheet">
+    <script src='https://api.mapbox.com/mapbox.js/v3.0.1/mapbox.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v3.0.1/mapbox.css' rel='stylesheet' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="https://dc.gov/sites/default/files/favicon_0.ico">
+</head>
+
+<body>
+    <div class='header'>
+        <div id="title">HIV/AIDS Clinics @ Washington, DC</div>
+        <div style="float:right">
+            <a style="color:rgb(206,206,206);font-size:14px; margin-right: 10px;" href="https://github.com/DCgov/opendatadc-starterkit" target="_blank">This on Github</a>
+            <a style="color:rgb(206,206,206);font-size:14px;" href="javascript:void(0)" onclick="openAbout()">About This Map</a>
+        </div>
+    </div>
+    <div class='sidebar'>
+        <div id='listings' class='listings'></div>
+    </div>
+    <div id='map' class='map'>
+    </div>
+    <div id="about">
+        <a id="dismiss-about" onclick="closeAbout()">×</a>
+        <div id="inner">
+            <p style="font-size: 1.4em; text-transform: uppercase; text-align: center">About This Map
+            </p>
+            <p style="font-size: 1.2em;">This map has been adapted from DC.gov's Open Data Starter Kit sample demonstrating how to layout a list next to map, and add interaction between them.</p>
+            <p><span><strong>Instructions</strong></span> <br/> Click link on left to move map to selected clinic or select a clinic to display information.</p>
+            <p><strong>Built with...</strong>
+                <br/> Mapbox JS API, jQuery</p>
+            <p><strong>Download HIV/AIDS Clinic data in GeoJSON</strong>
+                <br/><a href="https://opendata.arcgis.com/datasets/b24aa2b089e5431eb360458c44ca13b4_3.geojson">https://opendata.arcgis.com/datasets/b24aa2b089e5431eb360458c44ca13b4_3.geojson</a></p>
+            <p><strong>View HIV/AIDS Clinic data on DC Open Data</strong>
+                <br/><a href="http://opendata.dc.gov/datasets/hivaids-clinic/data" target="_blank">https://opendata.arcgis.com/datasets/b24aa2b089e5431eb360458c44ca13b4_3</a></p>
+            <p><strong>DC Open Data</strong>
+                <br/><a href="http://opendata.dc.gov" target="_blank">http://opendata.dc.gov</a></p>
+            <p><strong>DC Open Data Samples</strong>
+                <br/><a href="https://github.com/DCgov/opendatadc-starterkit" target="_blank">https://github.com/DCgov/opendatadc-starterkit</a></p>
+            <div id="logos" style="text-align: center">
+                <img src="images\WeAreWashintgonDCFinalLogo-Website.png" title="We are DC logo">
+            </div>
+        </div>
+    </div>
+        <script>
+            //data source from DC Open Data
+            var clinicGeoJsonUrl = "https://opendata.arcgis.com/datasets/b24aa2b089e5431eb360458c44ca13b4_3.geojson";
+
+            //Update with your own token
+            L.mapbox.accessToken = 'pk.eyJ1IjoibG55YW5kbGUiLCJhIjoiY2lrd3hzYTYyMDBsaHVha3NqenVlanpiNyJ9.0eQBMl1kRsT3S6Rf_bsmPw';
+            var geoJsonArr = [];
+
+            var map = L.mapbox.map('map', 'mapbox.k8xv42t9', {
+                    zoomControl: false
+                })
+                .setView([38.90512740512037, -77.03433036804199], 12);
+
+            new L.Control.Zoom({
+                position: 'bottomleft'
+            }).addTo(map);
+
+            var listings = document.getElementById('listings');
+            var clinicsLayer = L.mapbox.featureLayer().addTo(map);
+
+            function setActive(el) {
+                var siblings = listings.getElementsByTagName('div');
+                for (var i = 0; i < siblings.length; i++) {
+                    siblings[i].className = siblings[i].className
+                        .replace(/active/, '').replace(/\s\s*$/, '');
+                }
+
+                el.className += ' active';
+            }
+
+            $.getJSON(clinicGeoJsonUrl, function(data) {
+                geoJsonArr.push(data);
+                clinicsLayer.setGeoJSON(geoJsonArr);
+                //generate the listing on the left side
+                clinicsLayer.eachLayer(function(clinicFeature) {
+                    var prop = clinicFeature.feature.properties;
+                    var popup = '<h3>' + prop.NAME + '</h3><div>';
+
+                    var listing = listings.appendChild(document.createElement('div'));
+                    listing.className = 'item';
+
+                    var link = listing.appendChild(document.createElement('a'));
+                    link.href = '#';
+                    link.className = 'title';
+
+                    link.innerHTML = prop.NAME;
+
+                    link.innerHTML += '<br /><small class="quiet">' + prop.ADDRESS + '</small>';
+//                    link.innerHTML += '<br /><small class="quiet">' + prop.SERVICES + '</small>';
+                    link.innerHTML += '<br /><small class="quiet">' + prop.WARD + '</small>';
+                    link.innerHTML += '<br /><small class="quiet">' + prop.ZIP + '</small>';
+
+                    popup += '<small class="quiet">' + prop.ADDRESS + '</small>';
+                    popup += '<br /><small class="quiet">' + prop.SERVICES + '</small>';
+                    popup += '<br /><small class="quiet">' + prop.WARD + '</small>';
+                    popup += '<br /><small class="quiet">' + prop.ZIP + '</small>';
+
+
+                    var details = listing.appendChild(document.createElement('div'));
+
+                    link.onclick = function() {
+                        setActive(listing);
+                        // When a clinic link is clicked, animate the map to center
+                        // its associated clinic and open its popup.
+                        map.setView(clinicFeature.getLatLng(), 16);
+                        clinicFeature.openPopup();
+                        return false;
+                    };
+
+                    // Marker interaction
+                    clinicFeature.on('click', function(e) {
+                        // 1. center the map on the selected marker.
+                        map.panTo(clinicFeature.getLatLng());
+
+                        // 2. Set active the markers associated listing.
+                        setActive(listing);
+                    });
+
+                    popup += '</div>';
+                    clinicFeature.bindPopup(popup);
+
+                    clinicFeature.setIcon(L.icon({
+                        iconUrl: 'images/ranger-station-11.svg',
+                        iconSize: [20, 20],
+                        iconAnchor: [5.5, 0],
+                        popupAnchor: [10, 10]
+                    }));
+
+                });
+            });
+
+            //open About This panel
+            function openAbout() {
+                $("#about").show();
+                return false;
+            }
+
+            //close About This panel
+            function closeAbout() {
+                $("#about").hide();
+                return false;
+            }
+        </script>
+</body>
+
+</html>

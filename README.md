@@ -1,2 +1,6 @@
-# ayuda-gis-project
-Personal learning project where I will take open GIS data relating to health and human services within the DC-Maryland-Virginia area and turn it into a valuable resource for people looking for services.
+# Ayuda Project
+In an attempt to pull together my learning of web development and GIS, I'm embarking on this project where I will take open GIS data relating to health and human services within the Washington, DC area and turn it into a valuable resource for people looking for services, and for agencies looking to help direct people to locations for services.
+**
+Initially, I downloaded the data from http://opendata.dc.gov/, DCs Open Data Portal and began creating geoJson files. This soon felt tedius and time consuming, so I stopped work on the project out of frustration. Not my finest hour. After some time off and then some exploration on the DC Open Data site, I found their Open Source Starter kit containing samples that show how to use Data APIs from opendata.dc.gov with Esri maps, Mapbox, D3, and Leaflet (https://github.com/DCgov/opendatadc-starterkit). From here, I adapted a sample which demonstrated how to layout a list next to a map, and add interaction between them. I kept the bulk of the code the same and pointed it to a different dataset, and updated the copy to be relevant to the data.
+
+This first sample used the MapboxJS library, which is no longer being maintained and has been updated to the Mapbox GL JS. My next goal will be to update to Mapbox GL JS.
